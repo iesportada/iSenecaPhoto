@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">isenecaPhoto</string>
+    <string name="app_name">iSenecaPhoto</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
     <string name="leercsv">Leer CSV</string>
@@ -30,5 +30,17 @@
     <string name="leyendo_csv">Leyendo CSV, por favor espere...</string>
     <string name="tarjeta_sd">Es necesario una tarjeta de memoria externa para usar la función de la cámara.</string>
     <string name="aceptar">Aceptar</string>
-
+    <string name="title_activity_activity__tabs__alumno">Activity_Tabs_Alumno</string>
+    <string name="datos_personales_alumno">Datos personales del Alumno</string>
+    <string name="datos_academicos_alumno">Datos académicos del Alumno</string>
+    <string name="title_activity_activity__ver__imagen__alumno">Imagen del Alumno</string>
+    <string name="borrar_imagen">Borrar Imagen</string>
+    <string name="tomar_foto">Tomar Foto</string>
+    <string name="borrar_imagen_alumno">¿Está seguro de que desea borrar la imagen?</string>
+    <string name="si">Si</string>
+    <string name="no">No</string>
+    <string name="imagen_borrada">Imagen borrada con éxito</string>
+	<string name="imagen_no_borrada">Error al borrar la imagen</string>
+	<string name="seleccionar_foto">Seleccionar foto</string>
+	<string name="seleccione_foto">Seleccione una foto para el alumno</string>
 </resources>

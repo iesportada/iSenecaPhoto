@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
@@ -28,7 +29,7 @@ import com.lei.isenecaPhoto.Modelos.Alumno;
 public class Activity_Detalle_Alumno extends Activity {
 
 	//Campos y Componentes
-//	private final String TAG=this.getClass().getName();
+	private final String TAG=this.getClass().getName();
 	private TextView nombreAlumno, dni, fechaNacimiento, localidadNacimiento,
 	provinciaNacimiento, paisNacimiento, edad, nacionalidad, sexo,
 	direccion, codigoPostal, localidadResidencia, provinciaResidencia,
@@ -36,12 +37,13 @@ public class Activity_Detalle_Alumno extends Activity {
 	private LinearLayout lyRoot;
 	private ImageView imgAlumno;
 	private final String TAG_FOTO="no foto";
-	private final int RC_CAMERA = 1; // request code camera
+	private final int RC_VER_IMAGEN_ALUMNO = 1; // request code ver imagen alumno
 	private String ruta_Camera="/isenecaPhoto/photos/";
 	private String ruta_Archivo_Camera="";
 	private File f;
 	
 	private String nombreExtraAlumno ="alumno";
+	private String nombreExtraRutaFoto ="rutaFoto";
 	private Alumno alumno;
 	
 	@Override
@@ -139,6 +141,8 @@ public class Activity_Detalle_Alumno extends Activity {
 			
 			//asigno el nombre del archivo imagen
 			this.ruta_Archivo_Camera = this.alumno.getNumIdEscolar() + ".jpg";
+			//asigno la ruta donde se va a guardar la imagen
+			this.ruta_Camera +="/" + this.alumno.getUnidad() + "/";
 			// si la imagen no existe, asigno la imagen por defecto y le pongo el tag de "no foto"
 			this.f = new File(Environment.getExternalStorageDirectory() + this.ruta_Camera, this.ruta_Archivo_Camera);
 			if(!this.f.exists()) {
@@ -180,43 +184,26 @@ public class Activity_Detalle_Alumno extends Activity {
 		this.tutor2 = (TextView) findViewById(R.id.lblTutor2);
 		this.dniTutor2 = (TextView) findViewById(R.id.lblDniTutor2);
 		this.lyRoot = (LinearLayout) findViewById(R.id.lyRoot);
-		this.imgAlumno = (ImageView) findViewById(R.id.imageView1);
+		this.imgAlumno = (ImageView) findViewById(R.id.imgAlumno);
 		this.imgAlumno.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
-				if(imgAlumno.getTag().equals(TAG_FOTO)) {
-					if(comprobarSD())
-						//lanzo el intent para mostrar la aplicacion de la camara
-						lanzarCamara();
-					else
-						mostrarDialogo(getResources().getString(R.string.informacion), getResources().getString(R.string.tarjeta_sd), getResources().getString(R.string.aceptar), null);
-				}
+				//el alumno ya tenia una imagen en la memoria del telefono, por tanto debo abrir al imagen
+				abrirImagen(f.getAbsolutePath());
 			}
 		});
 	}
-
+	
 	/**
-	 * metodo que lanza la aplicacion de la camara
+	 * metodo que se lanza cuando se pulsa sobre la imagen del alumno y esta imageno no es la "imagen por defecto"
+	 * @param ruta
 	 */
-	private void lanzarCamara() {
-		//cargo la ruta de las imagenes tomadas por la camara con esta aplicacion
-		this.f  = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + this.ruta_Camera);
-		// si la ruta no existe creo el directorio
-		if(!this.f.exists()) {
-			if(this.f.mkdirs())
-				System.out.print("creado");
-			else
-				System.out.print("no creado");
-		}
-		//preparo el intent de la camara
-		Intent i = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-		//añado a la ruta de las imagenes el nombre del archivo con el que se va a guardar
-	    this.f = new File(Environment.getExternalStorageDirectory() + this.ruta_Camera, this.ruta_Archivo_Camera);
-	    //añado el extra de salida al fichero
-	    i.putExtra(MediaStore.EXTRA_OUTPUT,Uri.fromFile(this.f));
-	    //lanzo el intent
-	    startActivityForResult(i, RC_CAMERA);
+	private void abrirImagen(String ruta) {
+		Intent i = new Intent(this, Activity_Ver_Imagen_Alumno.class);
+		i.putExtra(this.nombreExtraRutaFoto, ruta);
+		i.putExtra(nombreExtraAlumno, this.alumno);
+		startActivityForResult(i, RC_VER_IMAGEN_ALUMNO);
 	}
 	
 	/**
@@ -254,19 +241,24 @@ public class Activity_Detalle_Alumno extends Activity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch (requestCode) {
-		case RC_CAMERA: // es el intent de la camara
-			if(resultCode == RESULT_OK) { // el resultado a sido OK
-				//pongo la imagen tomada por la camara a la imagen del alumno
-				Bitmap bm = BitmapFactory.decodeFile(this.f.getAbsolutePath());
-				this.imgAlumno.setImageBitmap(Bitmap.createScaledBitmap(bm, 64, 64, false));
+		case RC_VER_IMAGEN_ALUMNO:
+			if(resultCode == RESULT_OK) {
+				//si el archivo no existe asigno la imagen por defecto
+				if(!this.f.exists()) {
+					this.imgAlumno.setImageDrawable(getResources().getDrawable(R.drawable.silueta));
+					this.imgAlumno.setTag(TAG_FOTO);
+				}
+				// el archivo si existe, por tanto, cargo la imagen correspondiente
+				else {
+					Bitmap bm = BitmapFactory.decodeFile(this.f.getAbsolutePath());
+					this.imgAlumno.setImageBitmap(Bitmap.createScaledBitmap(bm, 64, 64, false));
+				}
 			}
 			break;
 
 		default:
+			super.onActivityResult(requestCode, resultCode, data);
 			break;
 		}
-		super.onActivityResult(requestCode, resultCode, data);
 	}
-	
-	
 }
