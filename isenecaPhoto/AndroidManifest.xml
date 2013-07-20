@@ -37,6 +37,10 @@
             android:name="com.lei.isenecaPhoto.Activity_Ver_Imagen_Alumno"
             android:label="@string/title_activity_activity__ver__imagen__alumno" >
         </activity>
+        <activity
+            android:name="com.lei.isenecaPhoto.Activity_Listado_Archivos"
+            android:label="@string/title_activity_activity__listado__archivos" >
+        </activity>
     </application>
 
 </manifest>

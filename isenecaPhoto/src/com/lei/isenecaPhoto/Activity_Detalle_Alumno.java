@@ -45,6 +45,7 @@ public class Activity_Detalle_Alumno extends Activity {
 	private String nombreExtraAlumno ="alumno";
 	private String nombreExtraRutaFoto ="rutaFoto";
 	private Alumno alumno;
+	private int sampleSize = 8;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -151,7 +152,9 @@ public class Activity_Detalle_Alumno extends Activity {
 			}
 			// el archivo si existe, por tanto, cargo la imagen correspondiente
 			else {
-				Bitmap bm = BitmapFactory.decodeFile(this.f.getAbsolutePath());
+				BitmapFactory.Options options=new BitmapFactory.Options();
+				options.inSampleSize = this.sampleSize;
+				Bitmap bm = BitmapFactory.decodeFile(this.f.getAbsolutePath(), options);
 				this.imgAlumno.setImageBitmap(Bitmap.createScaledBitmap(bm, 64, 64, false));
 			}
 
@@ -250,7 +253,9 @@ public class Activity_Detalle_Alumno extends Activity {
 				}
 				// el archivo si existe, por tanto, cargo la imagen correspondiente
 				else {
-					Bitmap bm = BitmapFactory.decodeFile(this.f.getAbsolutePath());
+					BitmapFactory.Options options=new BitmapFactory.Options();
+					options.inSampleSize = this.sampleSize;
+					Bitmap bm = BitmapFactory.decodeFile(this.f.getAbsolutePath(), options);
 					this.imgAlumno.setImageBitmap(Bitmap.createScaledBitmap(bm, 64, 64, false));
 				}
 			}

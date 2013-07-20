@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 
 import com.lei.isenecaPhoto.Modelos.Alumno;
@@ -25,6 +26,9 @@ public class Activity_Main extends Activity {
 	private String split;
 	private String caracterProvisional;
 	private String nombreExtraAlumnos;
+	private String nombreExtraRuta;
+    private String nombreExtraNombre;
+	private final int RC_FILE_EXPLORE = 1;
 //	private final String TAG=this.getClass().getName();
 	
 	@Override
@@ -38,11 +42,13 @@ public class Activity_Main extends Activity {
 	 * metodo que inicializa la vista
 	 */
 	private void init() {
-		this.nombreArchivo ="regalum.csv";
-		this.ruta=Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + nombreArchivo;
+//		this.nombreArchivo ="regalum.csv";
+//		this.ruta=Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + nombreArchivo;
 		this.split=";";
 		this.caracterProvisional="\",\"";
 		this.nombreExtraAlumnos="alumnos";
+		this.nombreExtraRuta="ruta";
+		this.nombreExtraNombre="nombre";
 	}
 
 	/**
@@ -50,10 +56,28 @@ public class Activity_Main extends Activity {
 	 * @param v
 	 */
 	public void leerCSV(View v) {
-		//creo la tarea asincrona y la lanzo
-		miTareaAsincrona asincrona = new miTareaAsincrona();
-		asincrona.execute(ruta, split, caracterProvisional);
+		Intent intent1 = new Intent(this, Activity_Listado_Archivos.class);
+        startActivityForResult(intent1,RC_FILE_EXPLORE);
+
 		
+	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		switch (requestCode) {
+		case RC_FILE_EXPLORE:
+			if(resultCode == RESULT_OK) {
+				this.ruta = data.getStringExtra(nombreExtraRuta) + "/" +  data.getStringExtra(nombreExtraNombre);
+//				//creo la tarea asincrona y la lanzo
+				miTareaAsincrona asincrona = new miTareaAsincrona();
+				asincrona.execute(ruta, split, caracterProvisional);
+			}
+			break;
+
+		default:
+			super.onActivityResult(requestCode, resultCode, data);
+			break;
+		}
 	}
 	
 	/**
