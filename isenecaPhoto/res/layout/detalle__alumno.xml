@@ -25,12 +25,17 @@
                 android:id="@+id/imgAlumno"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:baselineAlignBottom="true"
+                android:cropToPadding="false"
+                android:scaleType="fitCenter"
                 android:src="@drawable/silueta" />
 
             <TextView
                 android:id="@+id/lblNombreAlumno2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_gravity="fill_horizontal"
                 android:layout_marginLeft="10dp"
                 android:layout_weight="1"
                 android:text="Nombre Alumno"

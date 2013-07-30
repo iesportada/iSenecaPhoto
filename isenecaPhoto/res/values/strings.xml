@@ -51,5 +51,6 @@
     <string name="directorio_actual">directorio actual:</string>
     <string name="byte_nombre">Byte</string>
     <string name="directorio_padre">directorio padre</string>
+    <string name="csv_no_encontrado">No se encuentra el archivo CSV. ¿Desea buscar el archivo CSV?</string>
 
 </resources>

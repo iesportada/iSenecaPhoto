@@ -1,10 +1,15 @@
 package com.lei.isenecaPhoto;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.app.AlertDialog.Builder;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnClickListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -29,6 +34,7 @@ public class Activity_Main extends Activity {
 	private String nombreExtraRuta;
     private String nombreExtraNombre;
 	private final int RC_FILE_EXPLORE = 1;
+	private String rutaArchivo;
 //	private final String TAG=this.getClass().getName();
 	
 	@Override
@@ -42,8 +48,9 @@ public class Activity_Main extends Activity {
 	 * metodo que inicializa la vista
 	 */
 	private void init() {
-//		this.nombreArchivo ="regalum.csv";
-//		this.ruta=Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + nombreArchivo;
+		this.rutaArchivo = "/isenecaPhoto/";
+		this.nombreArchivo ="regalum.csv";
+		this.ruta=Environment.getExternalStorageDirectory().getAbsolutePath() + this.rutaArchivo + this.nombreArchivo;
 		this.split=";";
 		this.caracterProvisional="\",\"";
 		this.nombreExtraAlumnos="alumnos";
@@ -56,10 +63,44 @@ public class Activity_Main extends Activity {
 	 * @param v
 	 */
 	public void leerCSV(View v) {
-		Intent intent1 = new Intent(this, Activity_Listado_Archivos.class);
-        startActivityForResult(intent1,RC_FILE_EXPLORE);
-
-		
+		/*
+		 * primero intento cargar el archivo en una ruta por defecto
+		 * 
+		 * Si lo encuentra lo cargo directamente, sino muestro un mensaje al usuario de que no se encuentra
+		 * el archivo y que si desea buscarlo el
+		 */
+		File f = new File(this.ruta);
+		if(f.exists()) {
+			//creo la tarea asincrona y la lanzo
+			miTareaAsincrona asincrona = new miTareaAsincrona();
+			asincrona.execute(this.ruta, split, caracterProvisional);
+		}
+		else
+			mostrarDialogo(getResources().getString(R.string.informacion), getResources().getString(R.string.csv_no_encontrado), getResources().getString(R.string.si), getResources().getString(R.string.no));
+	}
+	
+	/**
+	 * metodo que muestra un mensaje de alerta al usuario
+	 * @param titulo
+	 * @param mensaje
+	 * @param positiveButton
+	 * @param negativeButton
+	 */
+	private void mostrarDialogo(String titulo,String mensaje,String positiveButton,String negativeButton) {
+		Builder dialogo = new AlertDialog.Builder(this);
+		dialogo.setTitle(titulo);
+		dialogo.setMessage(mensaje);
+		dialogo.setPositiveButton(positiveButton, new OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				Intent intent1 = new Intent(Activity_Main.this, Activity_Listado_Archivos.class);
+		        startActivityForResult(intent1,RC_FILE_EXPLORE);
+			}
+		});
+		dialogo.setNegativeButton(negativeButton, null);
+		dialogo.create();
+		dialogo.show();
 	}
 	
 	@Override
@@ -68,7 +109,7 @@ public class Activity_Main extends Activity {
 		case RC_FILE_EXPLORE:
 			if(resultCode == RESULT_OK) {
 				this.ruta = data.getStringExtra(nombreExtraRuta) + "/" +  data.getStringExtra(nombreExtraNombre);
-//				//creo la tarea asincrona y la lanzo
+				//creo la tarea asincrona y la lanzo
 				miTareaAsincrona asincrona = new miTareaAsincrona();
 				asincrona.execute(ruta, split, caracterProvisional);
 			}

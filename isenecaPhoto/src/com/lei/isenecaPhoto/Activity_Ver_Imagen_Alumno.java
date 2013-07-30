@@ -46,7 +46,8 @@ public class Activity_Ver_Imagen_Alumno extends Activity {
 	private File f;
 	private final String TAG=this.getClass().getName();
 	private Button btBorrarFoto;
-	private int sampleSize = 5;
+	private int sampleSize;
+	private int dimensionFoto;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +67,7 @@ public class Activity_Ver_Imagen_Alumno extends Activity {
 				BitmapFactory.Options options=new BitmapFactory.Options();
 				options.inSampleSize = this.sampleSize;
 				Bitmap bm = BitmapFactory.decodeFile(this.f.getAbsolutePath(), options);
-				this.img.setImageBitmap(Bitmap.createScaledBitmap(bm, 256, 256, false));
+				this.img.setImageBitmap(Bitmap.createScaledBitmap(bm, this.dimensionFoto, this.dimensionFoto, false));
 			}
 			else {
 				this.img.setImageDrawable(getResources().getDrawable(R.drawable.silueta));
@@ -85,6 +86,8 @@ public class Activity_Ver_Imagen_Alumno extends Activity {
 		//asigno la ruta donde se va a guardar la imagen
 		this.ruta_Camera +="/" + ((Alumno)getIntent().getSerializableExtra(nombreExtraAlumno)).getUnidad() + "/";
 		this.btBorrarFoto = (Button) findViewById(R.id.btBorrarImagen);
+		this.sampleSize = 5;
+		this.dimensionFoto = 256;
 	}
 
 	/**

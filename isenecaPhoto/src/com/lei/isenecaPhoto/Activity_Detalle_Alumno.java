@@ -38,14 +38,15 @@ public class Activity_Detalle_Alumno extends Activity {
 	private ImageView imgAlumno;
 	private final String TAG_FOTO="no foto";
 	private final int RC_VER_IMAGEN_ALUMNO = 1; // request code ver imagen alumno
-	private String ruta_Camera="/isenecaPhoto/photos/";
-	private String ruta_Archivo_Camera="";
+	private String ruta_Camera; 
+	private String ruta_Archivo_Camera;
 	private File f;
 	
-	private String nombreExtraAlumno ="alumno";
-	private String nombreExtraRutaFoto ="rutaFoto";
+	private String nombreExtraAlumno;
+	private String nombreExtraRutaFoto;
 	private Alumno alumno;
-	private int sampleSize = 8;
+	private int sampleSize;
+	private int dimensionFoto;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +54,52 @@ public class Activity_Detalle_Alumno extends Activity {
 		setContentView(R.layout.detalle__alumno);
 		init();
 		recogerExtras();
+	}
+	
+	/**
+	 * metodo que inicializa la vista
+	 */
+	private void init() {
+		this.ruta_Camera = "/isenecaPhoto/photos/";
+		this.ruta_Archivo_Camera ="";
+		this.nombreExtraAlumno="alumno";
+		this.nombreExtraRutaFoto="rutaFoto";
+		this.sampleSize = 8;
+		this.dimensionFoto = 64;
+		
+		//Hago referencia a los componentes de la vista
+		this.nombreAlumno = (TextView) findViewById(R.id.lblNombreAlumno2);
+		this.edad = (TextView) findViewById(R.id.lblEdad);
+		this.sexo = (TextView) findViewById(R.id.lblSexo);
+		this.fechaNacimiento = (TextView) findViewById(R.id.lblFechaNacimiento);
+		this.dni = (TextView) findViewById(R.id.lblDNI);
+		this.correoElectronico = (TextView) findViewById(R.id.lblCorreoElectronico);
+		this.codigoPostal = (TextView) findViewById(R.id.lblCodigoPostal);
+		this.nacionalidad = (TextView) findViewById(R.id.lblNacionalidad);
+		this.direccion = (TextView) findViewById(R.id.lblDireccion);
+		this.telefono = (TextView) findViewById(R.id.lblTelefono);
+		this.telefonoUrgencia = (TextView) findViewById(R.id.lblTelefonoUrgencia);
+		this.localidadNacimiento = (TextView) findViewById(R.id.lblLocalidadNacimiento);
+		this.localidadResidencia = (TextView) findViewById(R.id.lblLocalidadResidencia);
+		this.provinciaNacimiento = (TextView) findViewById(R.id.lblProvinciaNacimiento);
+		this.provinciaResidencia = (TextView) findViewById(R.id.lblProvinciaResidencia);
+		this.paisNacimiento = (TextView) findViewById(R.id.lblPaisNacimiento);
+		this.tutor1 = (TextView) findViewById(R.id.lblTutor1);
+		this.dniTutor1 = (TextView) findViewById(R.id.lblDniTutor1);
+		this.tutor2 = (TextView) findViewById(R.id.lblTutor2);
+		this.dniTutor2 = (TextView) findViewById(R.id.lblDniTutor2);
+		this.lyRoot = (LinearLayout) findViewById(R.id.lyRoot);
+		this.imgAlumno = (ImageView) findViewById(R.id.imgAlumno);
+		this.imgAlumno.getLayoutParams().height = this.dimensionFoto;
+		this.imgAlumno.getLayoutParams().width = this.dimensionFoto;
+		this.imgAlumno.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				//el alumno ya tenia una imagen en la memoria del telefono, por tanto debo abrir al imagen
+				abrirImagen(f.getAbsolutePath());
+			}
+		});
 	}
 
 	/**
@@ -147,7 +194,7 @@ public class Activity_Detalle_Alumno extends Activity {
 			// si la imagen no existe, asigno la imagen por defecto y le pongo el tag de "no foto"
 			this.f = new File(Environment.getExternalStorageDirectory() + this.ruta_Camera, this.ruta_Archivo_Camera);
 			if(!this.f.exists()) {
-				this.imgAlumno.setBackground(getResources().getDrawable(R.drawable.silueta));
+				this.imgAlumno.setImageDrawable(getResources().getDrawable(R.drawable.silueta));
 				this.imgAlumno.setTag(TAG_FOTO);
 			}
 			// el archivo si existe, por tanto, cargo la imagen correspondiente
@@ -155,47 +202,10 @@ public class Activity_Detalle_Alumno extends Activity {
 				BitmapFactory.Options options=new BitmapFactory.Options();
 				options.inSampleSize = this.sampleSize;
 				Bitmap bm = BitmapFactory.decodeFile(this.f.getAbsolutePath(), options);
-				this.imgAlumno.setImageBitmap(Bitmap.createScaledBitmap(bm, 64, 64, false));
+				this.imgAlumno.setImageBitmap(Bitmap.createScaledBitmap(bm, this.dimensionFoto, this.dimensionFoto, false));
 			}
 
 		}
-	}
-
-	/**
-	 * metodo que inicializa la vista
-	 */
-	private void init() {
-		//Hago referencia a los componentes de la vista
-		this.nombreAlumno = (TextView) findViewById(R.id.lblNombreAlumno2);
-		this.edad = (TextView) findViewById(R.id.lblEdad);
-		this.sexo = (TextView) findViewById(R.id.lblSexo);
-		this.fechaNacimiento = (TextView) findViewById(R.id.lblFechaNacimiento);
-		this.dni = (TextView) findViewById(R.id.lblDNI);
-		this.correoElectronico = (TextView) findViewById(R.id.lblCorreoElectronico);
-		this.codigoPostal = (TextView) findViewById(R.id.lblCodigoPostal);
-		this.nacionalidad = (TextView) findViewById(R.id.lblNacionalidad);
-		this.direccion = (TextView) findViewById(R.id.lblDireccion);
-		this.telefono = (TextView) findViewById(R.id.lblTelefono);
-		this.telefonoUrgencia = (TextView) findViewById(R.id.lblTelefonoUrgencia);
-		this.localidadNacimiento = (TextView) findViewById(R.id.lblLocalidadNacimiento);
-		this.localidadResidencia = (TextView) findViewById(R.id.lblLocalidadResidencia);
-		this.provinciaNacimiento = (TextView) findViewById(R.id.lblProvinciaNacimiento);
-		this.provinciaResidencia = (TextView) findViewById(R.id.lblProvinciaResidencia);
-		this.paisNacimiento = (TextView) findViewById(R.id.lblPaisNacimiento);
-		this.tutor1 = (TextView) findViewById(R.id.lblTutor1);
-		this.dniTutor1 = (TextView) findViewById(R.id.lblDniTutor1);
-		this.tutor2 = (TextView) findViewById(R.id.lblTutor2);
-		this.dniTutor2 = (TextView) findViewById(R.id.lblDniTutor2);
-		this.lyRoot = (LinearLayout) findViewById(R.id.lyRoot);
-		this.imgAlumno = (ImageView) findViewById(R.id.imgAlumno);
-		this.imgAlumno.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				//el alumno ya tenia una imagen en la memoria del telefono, por tanto debo abrir al imagen
-				abrirImagen(f.getAbsolutePath());
-			}
-		});
 	}
 	
 	/**
@@ -256,7 +266,7 @@ public class Activity_Detalle_Alumno extends Activity {
 					BitmapFactory.Options options=new BitmapFactory.Options();
 					options.inSampleSize = this.sampleSize;
 					Bitmap bm = BitmapFactory.decodeFile(this.f.getAbsolutePath(), options);
-					this.imgAlumno.setImageBitmap(Bitmap.createScaledBitmap(bm, 64, 64, false));
+					this.imgAlumno.setImageBitmap(Bitmap.createScaledBitmap(bm, this.dimensionFoto, this.dimensionFoto, false));
 				}
 			}
 			break;
