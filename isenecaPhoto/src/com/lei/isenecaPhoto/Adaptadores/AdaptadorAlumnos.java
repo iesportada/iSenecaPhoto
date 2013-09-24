@@ -47,7 +47,7 @@ public class AdaptadorAlumnos extends ArrayAdapter<Alumno> {
 			holder = (HolderAlumno) item.getTag();
 		}
 		//asigno el nombre
-		holder.getNombreAlumno().setText(this.alumnos.get(position).getAlumno());
+		holder.getNombreAlumno().setText(this.alumnos.get(position).getMapa().get("Alumno/a"));
 		//devuelvo la vista
 		return item;
 	}

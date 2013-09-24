@@ -7,32 +7,10 @@
     <string name="leercsv">Leer CSV</string>
     <string name="title_activity_activity__listado__alumnos">Listado de Alumnos</string>
     <string name="title_activity_activity__detalle__alumno">Detalles del Alumno</string>
-    <string name="edad">Edad</string>
-    <string name="sexo">Sexo</string>
-    <string name="fecha_nacimiento">F.Nacimiento</string>
-    <string name="dni">DNI</string>
-    <string name="direccion">Dirección</string>
-    <string name="codigo_postal">Código Postal</string>
-    <string name="nacionalidad">Nacionalidad</string>
-    <string name="correo_electronico">Correo Electrónico</string>
-    <string name="telefono">Teléfono</string>
-    <string name="telefono_urgencia">Teléfono de Urgencia</string>
-    <string name="localidad_nacimiento">Localidad de Nacimiento</string>
-    <string name="provincia_nacimiento">Provincia de Nacimiento</string>
-    <string name="pais_nacimiento">Pais de Nacimiento</string>
-    <string name="localidad_residencia">Localidad de Residencia</string>
-    <string name="provincia_residencia">Provincia de Residencia</string>
-    <string name="tutor1">Tutor 1</string>
-    <string name="dni_tutor1">DNI Tutor 1</string>
-    <string name="tutor2">Tutor 2</string>
-    <string name="dni_tutor2">DNI Tutor 2</string>
     <string name="informacion">información</string>
     <string name="leyendo_csv">Leyendo CSV, por favor espere...</string>
     <string name="tarjeta_sd">Es necesario una tarjeta de memoria externa para usar la función de la cámara.</string>
     <string name="aceptar">Aceptar</string>
-    <string name="title_activity_activity__tabs__alumno">Activity_Tabs_Alumno</string>
-    <string name="datos_personales_alumno">Datos personales del Alumno</string>
-    <string name="datos_academicos_alumno">Datos académicos del Alumno</string>
     <string name="title_activity_activity__ver__imagen__alumno">Imagen del Alumno</string>
     <string name="borrar_imagen">Borrar Imagen</string>
     <string name="tomar_foto">Tomar Foto</string>
@@ -43,8 +21,7 @@
     <string name="imagen_no_borrada">Error al borrar la imagen</string>
     <string name="seleccionar_foto">Seleccionar foto</string>
     <string name="seleccione_foto">Seleccione una foto para el alumno</string>
-    <string name="title_activity_activity__file__explorer">Activity_File_Explorer</string>
-    <string name="title_activity_activity__listado__archivos">Activity_Listado_Archivos</string>
+    <string name="title_activity_activity__listado__archivos">Listado de Archivos</string>
     <string name="icono_archivo">icono_archivo</string>
     <string name="icono_directorio">icono_directorio</string>
     <string name="icono_subir">icono_subir</string>
@@ -52,5 +29,16 @@
     <string name="byte_nombre">Byte</string>
     <string name="directorio_padre">directorio padre</string>
     <string name="csv_no_encontrado">No se encuentra el archivo CSV. ¿Desea buscar el archivo CSV?</string>
-
+    <string name="title_activity_activity__acerca_de">Acerca De</string>
+    <string name="descripcion_app">Gestión de fotografías para Séneca</string>
+    <string name="autor">Iván Díaz Molina</string>
+    <string name="ano">2013</string>
+    <string name="linkedin" formatted="false">http://www.linkedin.com/pub/iv%C3%A1n-d%C3%ADaz-molina/53/332/b4b</string>
+    <string name="linkedin2">linkedin</string>
+    <string name="gmail">ivandiazmolina92@gmail.com</string>
+    <string name="enviando_email">Seleccione un programa</string>
+    <string name="imagen_guardada">Imagen guardada con éxito</string>
+    <string name="imagen_no_guardada">Error al guardar la imagen</string>
+    <string name="tamano_foto">Tamaño foto</string>
+    <string name="elige_tamano">Tamaño de foto</string>
 </resources>

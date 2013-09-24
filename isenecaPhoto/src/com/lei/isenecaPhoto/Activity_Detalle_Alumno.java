@@ -1,18 +1,21 @@
 package com.lei.isenecaPhoto;
 
 import java.io.File;
+import java.io.IOException;
 
+import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
+import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.Typeface;
+import android.media.ExifInterface;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
@@ -29,12 +32,8 @@ import com.lei.isenecaPhoto.Modelos.Alumno;
 public class Activity_Detalle_Alumno extends Activity {
 
 	//Campos y Componentes
-	private final String TAG=this.getClass().getName();
-	private TextView nombreAlumno, dni, fechaNacimiento, localidadNacimiento,
-	provinciaNacimiento, paisNacimiento, edad, nacionalidad, sexo,
-	direccion, codigoPostal, localidadResidencia, provinciaResidencia,
-	telefono, telefonoUrgencia, correoElectronico,tutor1,dniTutor1,tutor2,dniTutor2;
-	private LinearLayout lyRoot;
+	//private final String TAG=this.getClass().getName();
+	private LinearLayout lyRootPadre,lyRoot;
 	private ImageView imgAlumno;
 	private final String TAG_FOTO="no foto";
 	private final int RC_VER_IMAGEN_ALUMNO = 1; // request code ver imagen alumno
@@ -42,16 +41,11 @@ public class Activity_Detalle_Alumno extends Activity {
 	private String ruta_Archivo_Camera;
 	private File f;
 	
-	private String nombreExtraAlumno;
-	private String nombreExtraRutaFoto;
 	private Alumno alumno;
-	private int sampleSize;
-	private int dimensionFoto;
-	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.detalle__alumno);
+		setContentView(R.layout.detalle_alumno);
 		init();
 		recogerExtras();
 	}
@@ -60,38 +54,13 @@ public class Activity_Detalle_Alumno extends Activity {
 	 * metodo que inicializa la vista
 	 */
 	private void init() {
+		//asigno las rutas
 		this.ruta_Camera = "/isenecaPhoto/photos/";
 		this.ruta_Archivo_Camera ="";
-		this.nombreExtraAlumno="alumno";
-		this.nombreExtraRutaFoto="rutaFoto";
-		this.sampleSize = 8;
-		this.dimensionFoto = 64;
-		
 		//Hago referencia a los componentes de la vista
-		this.nombreAlumno = (TextView) findViewById(R.id.lblNombreAlumno2);
-		this.edad = (TextView) findViewById(R.id.lblEdad);
-		this.sexo = (TextView) findViewById(R.id.lblSexo);
-		this.fechaNacimiento = (TextView) findViewById(R.id.lblFechaNacimiento);
-		this.dni = (TextView) findViewById(R.id.lblDNI);
-		this.correoElectronico = (TextView) findViewById(R.id.lblCorreoElectronico);
-		this.codigoPostal = (TextView) findViewById(R.id.lblCodigoPostal);
-		this.nacionalidad = (TextView) findViewById(R.id.lblNacionalidad);
-		this.direccion = (TextView) findViewById(R.id.lblDireccion);
-		this.telefono = (TextView) findViewById(R.id.lblTelefono);
-		this.telefonoUrgencia = (TextView) findViewById(R.id.lblTelefonoUrgencia);
-		this.localidadNacimiento = (TextView) findViewById(R.id.lblLocalidadNacimiento);
-		this.localidadResidencia = (TextView) findViewById(R.id.lblLocalidadResidencia);
-		this.provinciaNacimiento = (TextView) findViewById(R.id.lblProvinciaNacimiento);
-		this.provinciaResidencia = (TextView) findViewById(R.id.lblProvinciaResidencia);
-		this.paisNacimiento = (TextView) findViewById(R.id.lblPaisNacimiento);
-		this.tutor1 = (TextView) findViewById(R.id.lblTutor1);
-		this.dniTutor1 = (TextView) findViewById(R.id.lblDniTutor1);
-		this.tutor2 = (TextView) findViewById(R.id.lblTutor2);
-		this.dniTutor2 = (TextView) findViewById(R.id.lblDniTutor2);
+		this.lyRootPadre = (LinearLayout) findViewById(R.id.lyRootPadre);
 		this.lyRoot = (LinearLayout) findViewById(R.id.lyRoot);
 		this.imgAlumno = (ImageView) findViewById(R.id.imgAlumno);
-		this.imgAlumno.getLayoutParams().height = this.dimensionFoto;
-		this.imgAlumno.getLayoutParams().width = this.dimensionFoto;
 		this.imgAlumno.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -104,107 +73,55 @@ public class Activity_Detalle_Alumno extends Activity {
 
 	/**
 	 * metodo que recoge los posibles extras que le puedan llegar, si recoge extras se encarga de eliminar los posibles
-	 * view en los que no haya ningun valor para añadir
+	 * view en los que no haya ningun valor para aï¿½adir
 	 */
 	private void recogerExtras() {
-		if(getIntent().hasExtra(nombreExtraAlumno)) {
-			this.alumno = (Alumno) getIntent().getSerializableExtra(nombreExtraAlumno);
-			this.nombreAlumno.setText(this.alumno.getNombreAlumno() + " " + this.alumno.getPrimerApellidoAlumno() + " " + this.alumno.getSegundoApellidoAlumno());
-			if(this.alumno.getEdad().equals(""))
-				this.lyRoot.removeView(findViewById(R.id.lyEdadAlumno));
-			else
-				this.edad.setText(this.alumno.getEdad());
-			if(this.alumno.getSexo().equals(""))
-				this.lyRoot.removeView(findViewById(R.id.lySexoAlumno));
-			else
-				this.sexo.setText(this.alumno.getSexo());
-			if(this.alumno.getDireccion().equals(""))
-				this.lyRoot.removeView(findViewById(R.id.lyDireccion));
-			else
-				this.direccion.setText(this.alumno.getDireccion());
-			if(this.alumno.getCodigoPostal().equals(""))
-				this.lyRoot.removeView(findViewById(R.id.lyCodigoPostal));
-			else
-				this.codigoPostal.setText(this.alumno.getCodigoPostal());
-			if(this.alumno.getCorreoElectronico().equals(""))
-				this.lyRoot.removeView(findViewById(R.id.lyCorreoElectronico));
-			else
-				this.correoElectronico.setText(this.alumno.getCorreoElectronico());
-			if(this.alumno.getNacionalidad().equals(""))
-				this.lyRoot.removeView(findViewById(R.id.lyNacionalidad));
-			else
-				this.nacionalidad.setText(this.alumno.getNacionalidad());
-			if(this.alumno.getDni().equals(""))
-				this.lyRoot.removeView(findViewById(R.id.lyDniAlumno));
-			else
-				this.dni.setText(this.alumno.getDni());
-			if(this.alumno.getFechaNacimiento().equals(""))
-				this.lyRoot.removeView(findViewById(R.id.lyFechaNacimientoAlumno));
-			else
-				this.fechaNacimiento.setText(this.alumno.getFechaNacimiento());
-			if(this.alumno.getTelefono().equals(""))
-				this.lyRoot.removeView(findViewById(R.id.lyTelefono));
-			else
-				this.telefono.setText(this.alumno.getTelefono());
-			if(this.alumno.getTelefonoUrgencia().equals(""))
-				this.lyRoot.removeView(findViewById(R.id.lyTelefonoUrgencia));
-			else
-				this.telefonoUrgencia.setText(this.alumno.getTelefonoUrgencia());
-			if(this.alumno.getLocalidadNacimiento().equals(""))
-				this.lyRoot.removeView(findViewById(R.id.lyLocalidadNacimiento));
-			else
-				this.localidadNacimiento.setText(this.alumno.getLocalidadNacimiento());
-			if(this.alumno.getLocalidadResidencia().equals(""))
-				this.lyRoot.removeView(findViewById(R.id.lyLocalidadResidencia));
-			else
-				this.localidadResidencia.setText(this.alumno.getLocalidadResidencia());
-			if(this.alumno.getProvinciaNacimiento().equals(""))
-				this.lyRoot.removeView(findViewById(R.id.lyLocalidadResidencia));
-			else
-				this.provinciaNacimiento.setText(this.alumno.getProvinciaNacimiento());
-			if(this.alumno.getProvinciaResidencia().equals(""))
-				this.lyRoot.removeView(findViewById(R.id.lyProvinciaResidencia));
-			else
-				this.provinciaResidencia.setText(this.alumno.getProvinciaResidencia());
-			if(this.alumno.getPaisNacimiento().equals(""))
-				this.lyRoot.removeView(findViewById(R.id.lyPaisNacimiento));
-			else
-				this.paisNacimiento.setText(this.alumno.getPaisNacimiento());
-			if(this.alumno.getNombreTutor().equals(""))
-				this.lyRoot.removeView(findViewById(R.id.lyTutor1));
-			else
-				this.tutor1.setText(this.alumno.getNombreTutor() + " " + this.alumno.getPrimerApellidoTutor() + " " +  this.alumno.getSegundoApellidoTutor());
-			if(this.alumno.getDniTutor().equals(""))
-				this.lyRoot.removeView(findViewById(R.id.lyDniTutor1));
-			else
-				this.dniTutor1.setText(this.alumno.getDniTutor());
-			if(this.alumno.getNombreTutor2().equals(""))
-				this.lyRoot.removeView(findViewById(R.id.lyTutor2));
-			else
-				this.tutor2.setText(this.alumno.getNombreTutor2() + " " + this.alumno.getPrimerApellidoTutor2() + " " +  this.alumno.getSegundoApellidoTutor2());
-			if(this.alumno.getDniTutor2().equals(""))
-				this.lyRoot.removeView(findViewById(R.id.lyDniTutor2));
-			else
-				this.dniTutor2.setText(this.alumno.getDniTutor2());
+		
+		if(getIntent().hasExtra(CONSTANTES.EXTRA_ALUMNO)) {
+			this.alumno = getIntent().getParcelableExtra(CONSTANTES.EXTRA_ALUMNO);
+			//Creo las vistas en tiempo de ejecucion
+			for(int i = 0;i<((Aplicacion)this.getApplicationContext()).getColumnas().size();i++) {
+				LinearLayout ly = new LinearLayout(this);
+				ly.setOrientation(LinearLayout.VERTICAL);
+				TextView tv = new TextView(this);
+				tv.setTextColor(Color.WHITE);
+				tv.setTypeface(null,Typeface.BOLD);
+				tv.setText(((Aplicacion)this.getApplicationContext()).getColumnas().get(i));
+				ly.addView(tv);
+				tv = new TextView(this);
+				tv.setTextColor(Color.WHITE);
+				tv.setText(this.alumno.getMapa().get(((Aplicacion)this.getApplicationContext()).getColumnas().get(i)));
+				ly.addView(tv);
+				if(i==0) {
+					//pongo el nombre del alumno arriba a la derecha
+					LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+					ly.setLayoutParams(params);
+					this.lyRoot.addView(ly);
+				}
+				else if(!tv.getText().toString().equals(""))
+					this.lyRootPadre.addView(ly);
+			}	
 			
 			//asigno el nombre del archivo imagen
-			this.ruta_Archivo_Camera = this.alumno.getNumIdEscolar() + ".jpg";
+			this.ruta_Archivo_Camera = this.alumno.getMapa().get(CONSTANTES.NUM_IDEN_ALUMNO) + ".jpg";
 			//asigno la ruta donde se va a guardar la imagen
-			this.ruta_Camera +="/" + this.alumno.getUnidad() + "/";
+			this.ruta_Camera +="/" + this.alumno.getMapa().get(CONSTANTES.UNIDAD_ALUMNO) + "/";
+			
+			
+			
+			
 			// si la imagen no existe, asigno la imagen por defecto y le pongo el tag de "no foto"
 			this.f = new File(Environment.getExternalStorageDirectory() + this.ruta_Camera, this.ruta_Archivo_Camera);
+			
 			if(!this.f.exists()) {
 				this.imgAlumno.setImageDrawable(getResources().getDrawable(R.drawable.silueta));
 				this.imgAlumno.setTag(TAG_FOTO);
 			}
 			// el archivo si existe, por tanto, cargo la imagen correspondiente
 			else {
-				BitmapFactory.Options options=new BitmapFactory.Options();
-				options.inSampleSize = this.sampleSize;
-				Bitmap bm = BitmapFactory.decodeFile(this.f.getAbsolutePath(), options);
-				this.imgAlumno.setImageBitmap(Bitmap.createScaledBitmap(bm, this.dimensionFoto, this.dimensionFoto, false));
+				Bitmap bm = BitmapFactory.decodeFile(this.f.getAbsolutePath());
+				this.imgAlumno.setImageBitmap(bm);
 			}
-
 		}
 	}
 	
@@ -214,8 +131,8 @@ public class Activity_Detalle_Alumno extends Activity {
 	 */
 	private void abrirImagen(String ruta) {
 		Intent i = new Intent(this, Activity_Ver_Imagen_Alumno.class);
-		i.putExtra(this.nombreExtraRutaFoto, ruta);
-		i.putExtra(nombreExtraAlumno, this.alumno);
+		i.putExtra(CONSTANTES.EXTRA_RUTA_FOTO, ruta);
+		i.putExtra(CONSTANTES.EXTRA_ALUMNO, this.alumno);
 		startActivityForResult(i, RC_VER_IMAGEN_ALUMNO);
 	}
 	
@@ -250,6 +167,42 @@ public class Activity_Detalle_Alumno extends Activity {
 		dialogo.create();
 		dialogo.show();
 	}
+	
+	/**
+	 * metodo que rota un bitmap. Siempre para que quede en 90Âº
+	 * @param bm
+	 * @param ruta
+	 * @return
+	 */
+	private Bitmap rotarImagen(Bitmap bm,String ruta) {
+		Matrix matrix = null;
+		ExifInterface ei;
+		try {
+			ei = new ExifInterface(ruta);
+			int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+
+			matrix = new  Matrix();
+			switch(orientation) {
+			case ExifInterface.ORIENTATION_NORMAL:
+				matrix.postRotate(0);
+		        break;
+		    case ExifInterface.ORIENTATION_ROTATE_90:
+		    	matrix.postRotate(90);
+		        break;
+		    case ExifInterface.ORIENTATION_ROTATE_180:
+		    	matrix.postRotate(180);
+		        break;
+		        
+		    case ExifInterface.ORIENTATION_ROTATE_270:
+		    	matrix.postRotate(270);
+		        break;
+			}
+	        
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return Bitmap.createBitmap(bm, 0, 0,bm.getWidth(), bm.getHeight(), matrix, true);
+	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -263,16 +216,10 @@ public class Activity_Detalle_Alumno extends Activity {
 				}
 				// el archivo si existe, por tanto, cargo la imagen correspondiente
 				else {
-					BitmapFactory.Options options=new BitmapFactory.Options();
-					options.inSampleSize = this.sampleSize;
-					Bitmap bm = BitmapFactory.decodeFile(this.f.getAbsolutePath(), options);
-					this.imgAlumno.setImageBitmap(Bitmap.createScaledBitmap(bm, this.dimensionFoto, this.dimensionFoto, false));
-				}
+					Bitmap bm = BitmapFactory.decodeFile(this.f.getAbsolutePath());
+				    this.imgAlumno.setImageBitmap(bm);
+			    }
 			}
-			break;
-
-		default:
-			super.onActivityResult(requestCode, resultCode, data);
 			break;
 		}
 	}

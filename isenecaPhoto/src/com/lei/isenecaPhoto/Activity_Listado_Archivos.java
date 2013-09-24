@@ -5,10 +5,8 @@ import java.sql.Date;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 import android.app.ListActivity;
-import android.content.ClipData.Item;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;

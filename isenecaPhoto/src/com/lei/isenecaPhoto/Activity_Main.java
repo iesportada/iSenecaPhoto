@@ -1,22 +1,34 @@
 package com.lei.isenecaPhoto;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.util.HashMap;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.app.AlertDialog.Builder;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
+import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
-import com.lei.isenecaPhoto.Modelos.Alumno;
+import com.lei.isenecaPhoto.Modelos.Grupo;
 
 /**
  * clase que gestiona la vista "main"
@@ -29,12 +41,12 @@ public class Activity_Main extends Activity {
 	private String nombreArchivo;
 	private String ruta;
 	private String split;
-	private String caracterProvisional;
-	private String nombreExtraAlumnos;
 	private String nombreExtraRuta;
     private String nombreExtraNombre;
+    private File f;
 	private final int RC_FILE_EXPLORE = 1;
 	private String rutaArchivo;
+	private TextView lblTitulo;
 //	private final String TAG=this.getClass().getName();
 	
 	@Override
@@ -42,20 +54,47 @@ public class Activity_Main extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 		init();
+		preferencias();
 	}
-	
 	/**
 	 * metodo que inicializa la vista
 	 */
 	private void init() {
-		this.rutaArchivo = "/isenecaPhoto/";
-		this.nombreArchivo ="regalum.csv";
-		this.ruta=Environment.getExternalStorageDirectory().getAbsolutePath() + this.rutaArchivo + this.nombreArchivo;
-		this.split=";";
-		this.caracterProvisional="\",\"";
-		this.nombreExtraAlumnos="alumnos";
+		//pongo el titulo y la version de la aplicacion
+		try {
+			this.lblTitulo = (TextView) findViewById(R.id.lblTitulo);
+			String titulo = getResources().getString(R.string.app_name);
+			PackageInfo pi = getPackageManager().getPackageInfo(getPackageName(), 0);
+			titulo += " v" + pi.versionName;
+			this.lblTitulo.setText(titulo);
+		} catch (NameNotFoundException e) {
+			e.printStackTrace();
+		}
+		this.rutaArchivo = "/" + CONSTANTES.ISENECAPHOTO + "/";
+		this.nombreArchivo ="RegAlum.csv";
+		this.ruta=Environment.getExternalStorageDirectory().getAbsolutePath() + this.rutaArchivo;
+		this.f = new File(this.ruta);
+		this.f.mkdirs();
+		this.ruta += this.nombreArchivo;
+		this.split=",";
 		this.nombreExtraRuta="ruta";
 		this.nombreExtraNombre="nombre";
+		
+	}
+	
+	/**
+	 * metodo que crea/carga/guarda preferencias
+	 */
+	private void preferencias() {
+		//obtengo las preferencias
+		SharedPreferences prefs = getSharedPreferences(CONSTANTES.NOMBRE_PREFERENCIAS,Context.MODE_PRIVATE);
+		//si el archivo de preferencia no contiene la POSICION DEL ARRAY del tamaño de las fotos
+		//le asigno yo una posicion manualmente
+		if(!prefs.contains(CONSTANTES.TAMANO_FOTO)) {
+			Editor editor = prefs.edit();
+			editor.putInt(CONSTANTES.TAMANO_FOTO, 2);
+			editor.commit();
+		}
 	}
 
 	/**
@@ -69,11 +108,11 @@ public class Activity_Main extends Activity {
 		 * Si lo encuentra lo cargo directamente, sino muestro un mensaje al usuario de que no se encuentra
 		 * el archivo y que si desea buscarlo el
 		 */
-		File f = new File(this.ruta);
-		if(f.exists()) {
+		this.f = new File(this.ruta);
+		if(this.f.exists()) {
 			//creo la tarea asincrona y la lanzo
 			miTareaAsincrona asincrona = new miTareaAsincrona();
-			asincrona.execute(this.ruta, split, caracterProvisional);
+			asincrona.execute(this.ruta, split);
 		}
 		else
 			mostrarDialogo(getResources().getString(R.string.informacion), getResources().getString(R.string.csv_no_encontrado), getResources().getString(R.string.si), getResources().getString(R.string.no));
@@ -111,7 +150,7 @@ public class Activity_Main extends Activity {
 				this.ruta = data.getStringExtra(nombreExtraRuta) + "/" +  data.getStringExtra(nombreExtraNombre);
 				//creo la tarea asincrona y la lanzo
 				miTareaAsincrona asincrona = new miTareaAsincrona();
-				asincrona.execute(ruta, split, caracterProvisional);
+				asincrona.execute(ruta, split);
 			}
 			break;
 
@@ -121,6 +160,75 @@ public class Activity_Main extends Activity {
 		}
 	}
 	
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.activity__main, menu);
+		return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		Intent i;
+		switch (item.getItemId()) {
+		case R.id.opcionAcercaDe:
+//			i = new Intent(this, Activity_AcercaDe.class);
+//			startActivity(i);
+			crearAcercaDe();
+			break;
+
+		default:
+			break;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	/**
+	 * metodo que crea el dialogo de "acerca de"
+	 */
+	private void crearAcercaDe() {
+		try {
+			AlertDialog.Builder dialogo = new Builder(this);
+			dialogo.setIcon(android.R.drawable.ic_dialog_info);
+			dialogo.setTitle(getResources().getString(R.string.title_activity_activity__acerca_de));
+			PackageInfo pi = getPackageManager().getPackageInfo(getPackageName(), 0);
+			
+			String mensaje = getResources().getString(R.string.app_name) + " v"
+					+ pi.versionName + "\n"
+					+ getResources().getString(R.string.descripcion_app) + "\n"
+					+ getResources().getString(R.string.ano) + " - "
+					+ getResources().getString(R.string.autor);
+			final LinearLayout ly = new LinearLayout(this);
+			ly.setGravity(Gravity.CENTER);
+			ly.setOrientation(LinearLayout.VERTICAL);
+			TextView tv = new TextView(this);
+			tv.setGravity(Gravity.CENTER);
+			tv.setText(mensaje);
+			ly.addView(tv);
+			tv = new TextView(this);
+			tv.setGravity(Gravity.CENTER);
+			tv.setText(getResources().getString(R.string.linkedin2));
+			tv.setClickable(true);
+			tv.setOnClickListener(new View.OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					Intent i = new Intent(Intent.ACTION_VIEW);
+					i.setData(Uri.parse(getResources().getString(R.string.linkedin)));
+					startActivity(i);
+				}
+			});
+			tv.setTextColor(Color.CYAN);
+			ly.addView(tv);
+			dialogo.setView(ly);
+			dialogo.setPositiveButton(getResources().getString(R.string.aceptar), null);
+			dialogo.create();
+			dialogo.show();
+		} catch (NameNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+
 	/**
 	 * clase que representa una tarea asincrona para la lectura del archivo CSV
 	 * @author Ivan
@@ -132,10 +240,13 @@ public class Activity_Main extends Activity {
 		@Override
 		protected Void doInBackground(String... params) {
 			//leo el fichero csv y una vez leido paso todos los nombres de los alumnos
-			CSV csv = new CSV();
-			ArrayList<Alumno> alumnos = csv.leerCSV(params[0], params[1], params[2]);
+			CSV csv = new CSV(Activity_Main.this);
+			//obtengo un mapa que contiene los grupos y cada grupo contiene sus alumnos
+			HashMap<String, Grupo> grupos = csv.leerCSV(params[0], params[1]);
+			//lo guardo en application
+			((Aplicacion)getApplicationContext()).setGrupos(grupos);
+			//lanzo la activity
 			Intent i = new Intent(Activity_Main.this, Activity_Listado_Alumnos.class);
-			i.putExtra(nombreExtraAlumnos, alumnos);
 			startActivity(i);
 			return null;
 		}
@@ -160,6 +271,7 @@ public class Activity_Main extends Activity {
 			//creo un dialogo con un progress bar indeterminado
 			dialogo = new ProgressDialog(Activity_Main.this);
 			dialogo.setIndeterminate(true);
+			dialogo.setCancelable(false);
 			dialogo.setTitle(getResources().getString(R.string.informacion));
 			dialogo.setMessage(getResources().getString(R.string.leyendo_csv));
 			dialogo.show();

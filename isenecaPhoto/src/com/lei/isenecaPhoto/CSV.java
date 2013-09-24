@@ -1,14 +1,13 @@
 package com.lei.isenecaPhoto;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
+import java.nio.charset.Charset;
+import java.util.HashMap;
 
+import android.content.Context;
+
+import com.csvreader.CsvReader;
 import com.lei.isenecaPhoto.Modelos.Alumno;
-
-import android.util.Log;
+import com.lei.isenecaPhoto.Modelos.Grupo;
 
 /**
  * clase encargada de gestionar archivos CSV
@@ -17,13 +16,18 @@ import android.util.Log;
  */
 public class CSV {
 	
-	private final String TAG=this.getClass().getName();
+	//private final String TAG=this.getClass().getName();
+	private Context contexto;
 	
 	/**
 	 * constructor
 	 */
 	public CSV() {
 		super();
+	}
+	
+	public CSV(Context contexto){
+		this.contexto = contexto;
 	}
 
 	/**
@@ -33,98 +37,46 @@ public class CSV {
 	 * @param caracterProvisional: es el caracter que vamos a sustituir provisionalmente para la mejor separacion de los valores del registro
 	 * @return ArrayList con los alumnos leidos del csv
 	 */
-	public ArrayList<Alumno> leerCSV(String ruta, String split, String caracterProvisional) {
-		String[] registroLeido;
-		ArrayList<Alumno> alumnos = new ArrayList<Alumno>();
-//		InputStream flujo = getResources().openRawResource(R.raw.regalum);
-		FileInputStream flujo = null;
-		BufferedReader lector = null;
+	public HashMap<String, Grupo> leerCSV(String ruta, String split) {
+		int contador = 0;
+		HashMap<String, Grupo> grupos = new HashMap<String, Grupo>();
+		Alumno registro = null;
+		CsvReader reader = null;
+		
 		try {
-			flujo = new FileInputStream(ruta);
-			lector = new BufferedReader(new InputStreamReader(flujo, "UTF-8"));
-			String texto = lector.readLine();
-			if (texto != null) {
-//				registroLeido = texto.replace(",\"", "\",\"").replace("\",\"", ";").replace("\"", "").split(";");
-				registroLeido = texto.replace(",\"", caracterProvisional).replace(caracterProvisional, split).replace("\"", "").split(split);
-				while (texto != null) {
-
-					/*
-					 * De la linea leida separo los valores, como el primer
-					 * campo es nombre completo y tiene una coma, la sentencia
-					 * lo dividiria en 2 siendo realmente uno( ej: Diaz
-					 * Molina,Ivan) para ello remplazamos provisionalmente la
-					 * primera "," por un ";"
-					 */
-
-					// Creo un objeto de tipo registro y asigno los valores a
-					// sus respectivos campos
-					Alumno registro = new Alumno();
-					registro.setAlumno(registroLeido[0]);
-					registro.setDni(registroLeido[1]);
-					registro.setFechaNacimiento(registroLeido[2]);
-					registro.setCurso(registroLeido[3]);
-					registro.setNumExpedienteCentro(registroLeido[4]);
-					registro.setUnidad(registroLeido[5]);
-					registro.setSegundoApellidoAlumno(registroLeido[6]);
-					registro.setNombreAlumno(registroLeido[7]);
-					registro.setDniTutor(registroLeido[8]);
-					registro.setPrimerApellidoTutor(registroLeido[9]);
-					registro.setSegundoApellidoTutor(registroLeido[10]);
-					registro.setNombreTutor(registroLeido[11]);
-					registro.setSexoTutor(registroLeido[12]);
-					registro.setDniTutor2(registroLeido[13]);
-					registro.setPrimerApellidoTutor2(registroLeido[14]);
-					registro.setSegundoApellidoTutor2(registroLeido[15]);
-					registro.setNombreTutor2(registroLeido[16]);
-					registro.setSexoTutor2(registroLeido[17]);
-					registro.setLocalidadNacimiento(registroLeido[18]);
-					registro.setAnoMatricula(registroLeido[19]);
-					registro.setNumeroMatriculoEsteCurso(registroLeido[20]);
-					registro.setObservacionesMatricula(registroLeido[21]);
-					registro.setProvinciaNacimiento(registroLeido[22]);
-					registro.setPaisNacimiento(registroLeido[23]);
-					registro.setEdad(registroLeido[24]);
-					registro.setNacionalidad(registroLeido[25]);
-					registro.setSexo(registroLeido[26]);
-					registro.setPrimerApellidoAlumno(registroLeido[27]);
-					registro.setEstadoMatricula(registroLeido[28]);
-					registro.setDireccion(registroLeido[29]);
-					registro.setCodigoPostal(registroLeido[30]);
-					registro.setLocalidadResidencia(registroLeido[31]);
-					registro.setProvinciaResidencia(registroLeido[32]);
-					registro.setTelefono(registroLeido[33]);
-					registro.setTelefonoUrgencia(registroLeido[34]);
-					registro.setCorreoElectronico(registroLeido[35]);
-					registro.setNumIdEscolar(registroLeido[36]);
-
-					// a�ado el nuevo registro al ArrayList
-					alumnos.add(registro);
-					texto = lector.readLine();
-					if (texto != null)
-//						registroLeido = texto.replace(",\"", "\",\"").replace("\",\"", ";").replace("\"", "").split(";");
-						registroLeido = texto.replace(",\"", caracterProvisional).replace(caracterProvisional, split).replace("\"", "").split(split);
+			// instancio el objeto readerCSV
+			reader = new CsvReader(ruta, split.charAt(0), Charset.forName("ISO-8859-1"));
+			// recorremos las filas del fichero
+			while (reader.readRecord()) {
+				registro = new Alumno();
+				if(contador == 0) {
+					((Aplicacion)this.contexto.getApplicationContext()).getColumnas().clear();
+					for(int i=0;i<reader.getColumnCount();i++) {
+						((Aplicacion)this.contexto.getApplicationContext()).getColumnas().add(reader.get(i));
+					}
+					contador++;
 				}
-
-				//Muestro los registros leidos en el LOGCAT
-				for (Alumno tmp : alumnos) {
-					Log.i(TAG, tmp.toString());
-					Log.i(TAG,"----------------------------------------------------------------");
+				else {
+					for(int i =0;i<reader.getColumnCount();i++)
+					registro.getMapa().put(((Aplicacion)this.contexto.getApplicationContext()).getColumnas().get(i), reader.get(i));
+					
+					if(grupos.containsKey(registro.getMapa().get(CONSTANTES.UNIDAD_ALUMNO)))
+						grupos.get(registro.getMapa().get(CONSTANTES.UNIDAD_ALUMNO)).getAlumnos().add(registro);
+					
+					else {
+						grupos.put(registro.getMapa().get(CONSTANTES.UNIDAD_ALUMNO), new Grupo(registro.getMapa().get(CONSTANTES.UNIDAD_ALUMNO)));
+						grupos.get(registro.getMapa().get(CONSTANTES.UNIDAD_ALUMNO)).getAlumnos().add(registro);
+					}
 				}
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
+			
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		} finally {
-			try {
-				//Cerramos el lector y el flujo
-				if (lector != null)
-					lector.close();
-				if (flujo != null)
-					flujo.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
+			reader.close();
+		} 
+		
 		//devuelvo los alumnos
-		return alumnos;
+		return grupos;
 	}
 }
